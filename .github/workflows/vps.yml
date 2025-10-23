@@ -1,0 +1,28 @@
+name: Keep IDX VPS Alive 24/7
+
+on:
+  workflow_dispatch:   # Manual start
+  schedule:
+    - cron: "*/10 * * * *"  # Har 10 minute me run karke VPS ko alive rakhe
+
+jobs:
+  run-vps:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6000  # 100 hours (60 min * 100 = 6000)
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Install Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.x'
+
+      - name: Keep IDX VPS Running
+        run: |
+          end=$((SECONDS+360000))  # 100 hours = 360000 seconds
+          while [ $SECONDS -lt $end ]; do
+            curl -s https://idx.google.com/u/3/devil-57133318 > /dev/null
+            echo "Pinged VPS at $(date)"
+            sleep 1  # Ping continuously (1 second gap)
+          done
